@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+						http://www.springframework.org/schema/context	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+						 http://www.springframework.org/schema/mvc      http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+
+	<!-- Just a place-holder. No controllers defined yet. -->
+	<context:component-scan base-package="com.gravitant.analytics.controller" />
+	<!-- Add View Resolvers -->
+	<!-- simply resolves the URI of the incoming request into a view name -->
+	<bean
+		class="org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator" />
+
+	<!-- Interprets a view name as bean name in the current application context. -->
+	<bean class="org.springframework.web.servlet.view.BeanNameViewResolver" />
+	
+	
+
+	<bean class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	
+	<!-- String http message Converter -->
+	<bean id="stringHttpMessageConverter"
+		class="org.springframework.http.converter.StringHttpMessageConverter" />
+
+	<!-- Form http message converter -->
+	<bean id="formHttpMessageConverter"
+		class="org.springframework.http.converter.FormHttpMessageConverter" />
+	
+	
+	<!-- Define Annotation adapter -->
+	<bean
+		class="com.gravitant.rest.annotation.RestAnnotationMethodHandlerAdapter">
+		<property name="messageConverters">
+			<list>				
+				<ref bean="stringHttpMessageConverter" />
+				<ref bean="formHttpMessageConverter" />
+			</list>
+		</property>
+		<property name="preferedMediaTypes">
+			<list>
+				<value>application/xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+		  p:prefix="/jsp/" p:suffix=".jsp" />
+    
+   	<bean name="/userRegistration.htm" class="com.gravitant.analytics.controller.AnalyticsController"
+	 p:formView="register" p:successView="successPage" />
+	 
+	 <mvc:default-servlet-handler></mvc:default-servlet-handler>
+
+	<bean id="exceptionResolver" class="com.gravitant.rest.exception.RestExceptionResolver">
+		<property name="includeStackTrace" value="true" />
+		<property name="defaultView">
+			<bean class="org.springframework.web.servlet.view.xml.MarshallingView">
+				<constructor-arg>
+					<bean class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+						<property name="classesToBeBound">
+							<list>
+								<value>com.gravitant.rest.exception.RestErrorMessage</value>
+							</list>
+						</property>
+					</bean>
+				</constructor-arg>
+			</bean>
+		</property>
+	</bean>
+	
+</beans>
